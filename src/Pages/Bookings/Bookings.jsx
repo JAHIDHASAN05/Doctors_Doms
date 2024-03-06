@@ -14,7 +14,47 @@ const Bookings = () => {
     }, [])
 
 
-    console.log(bookings);
+     const handleDelete=_id=>{
+        const proceed= confirm("are you sure to delete")
+        if(proceed){
+            fetch(`http://localhost:5000/bookings/${_id}`,{
+                method:"DELETE"
+            })
+            .then(res=>res.json())
+            .then(data=> {console.log(data)
+             if(data.deletedCount>0){
+                alert("Deleted suceesfully")
+             }
+            })
+        }
+
+        const remainingItem= bookings.filter(item=>item._id !==_id)
+
+        setBookings(remainingItem)
+     }
+
+     const handleUpdatebyPatch=id=>{
+        fetch(`http://localhost:5000/bookings/${id}`,
+        {
+            method: 'PATCH',
+            headers:{
+                'content-type' : 'application/json'
+            },
+            body: JSON.stringify({status :"confirm"})
+
+        })
+        .then(res=> res.json())
+        .then(data=>{ console.log(data)
+        if(data.modifiedCount>0){
+           alert ('confirm succes')
+           const reamainigItem= bookings.filter(item=>item._id !== id)
+           const updatedOne= bookings.find(item=>item._id === id)
+           const newBookings= [updatedOne, ...reamainigItem]
+           setBookings(newBookings)
+        }
+        })
+     }
+
     return (
         <div>
             Bookings {bookings.length}
@@ -25,21 +65,20 @@ const Bookings = () => {
                     {/* head */}
                     <thead>
                         <tr>
-                          
+
                             <th>Name</th>
-                            <th >E-Mail</th>
+                            <th >Price</th>
                             <th>Date</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {/* row 1 */}
                         {
                             bookings.map(bookItem => <tr key={bookItem._id}>
-                                
+
                                 <td>
                                     <div className="flex items-center gap-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                        <svg onClick={()=> handleDelete(bookItem._id)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                         </svg>
                                         <div className="avatar">
@@ -55,17 +94,17 @@ const Bookings = () => {
                                 </td>
                                 <td>
 
-                                    {bookItem.email}
+                                    $ {bookItem.price}
                                 </td>
                                 <td>{bookItem.date}</td>
                                 <th>
-                                    <button className="btn btn-error btn-xs text-white">Pending</button>
+                                    <button onClick={()=>handleUpdatebyPatch(bookItem._id)} className="btn btn-error btn-xs text-white">Pending</button>
                                 </th>
                             </tr>)
                         }
 
                     </tbody>
-                   
+
 
                 </table>
             </div>
