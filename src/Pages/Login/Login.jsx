@@ -1,12 +1,15 @@
 import React, { useContext } from 'react';
 
 import img from './../../assets/images/login/login.svg'
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../Providers/AuthProviders';
+import SocialLogin from '../Shared/SocialLogin/SocialLogin';
 
 const Login = () => {
     const  { SignIn}= useContext(AuthContext)
-
+     const location= useLocation()
+     const path= location.state?.from?.pathname || '/';
+     const navigate= useNavigate()
     const handleLogin=e=>{
         e.preventDefault()
         const form = e.target;
@@ -17,6 +20,27 @@ const Login = () => {
             .then(result=>{
                 const loggedUser= result.user;
                 console.log(loggedUser)
+
+
+
+             
+                navigate(path , {replace :true})
+                // const loggesUserEmail={
+                //     email : loggedUser.email
+                // }
+
+                // fetch(`http://localhost:5000/jwt`,{
+                //     method : 'POST',
+                //     headers:{
+                //         'content-type' : 'application/json'
+                //     },
+                //     body :JSON.stringify(loggesUserEmail)
+                // })
+                // .then(res=> res.json())
+                // .then(data=>{ console.log(data,'jwt res')
+                //   localStorage.setItem('Auth_Token' , data.token)
+                //   navigate(path , {replace : true})
+            // })
             })
             .catch(error=>{
                 console.log(error)
@@ -51,6 +75,7 @@ const Login = () => {
                         </div>
                     </form>
                         <p className='text-center mb-5'>New To Doctor's Doom?  <Link to={'/register'} className='text-blue-500'>Register</Link></p>
+                <SocialLogin></SocialLogin>
                 </div>
             </div>
         </div>

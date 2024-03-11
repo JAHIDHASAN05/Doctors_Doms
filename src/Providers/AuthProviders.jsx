@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import app from '../Firebase/Firebase.config';
-import {createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut} from 'firebase/auth'
+import {GoogleAuthProvider, createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut} from 'firebase/auth'
 export const AuthContext= createContext(null)
 
 
@@ -8,6 +8,8 @@ export const AuthContext= createContext(null)
 const AuthProviders = ({children}) => {
     const [user, setUser]= useState(null);
     const [loading, setLoading]= useState(true)
+
+    const googleProvider= new GoogleAuthProvider();
 
     const createUser=(email, password)=>{
         setLoading(true)
@@ -22,11 +24,34 @@ const AuthProviders = ({children}) => {
         const unsubcribe= onAuthStateChanged(Auth, (CurrentUser)=>{
             setUser(CurrentUser)
             setLoading(false)
+            if(CurrentUser && CurrentUser.email){
+                fetch('http://localhost:5000/jwtpractise',{
+                    method : 'POST',
+                    headers :{
+                        'content-type' : 'application/json'
+                    },
+                    body : JSON.stringify({email: CurrentUser?.email})
+                })
+                .then(res=> res.json())
+                .then(data=> {console.log(data)
+                 localStorage.setItem("Auth-Token" , data.token)
+                })
+                
+                
+                .catch(error=>console.log(error))
+            }
+            else{
+                localStorage.removeItem("Auth-Token")
+            }
         })
         return ()=>{
             return unsubcribe()
         }
     },[])
+    const googleLogIn= ()=>{
+         setLoading(true)
+         return signInWithPopup(Auth , googleProvider)
+    }
 
     const logOut=()=>{
         setLoading(true)
@@ -40,6 +65,7 @@ const AuthProviders = ({children}) => {
       createUser ,
       SignIn,
       logOut,
+      googleLogIn,
       loading
     }
     return (

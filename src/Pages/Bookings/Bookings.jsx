@@ -8,9 +8,16 @@ const Bookings = () => {
     const [bookings, setBookings] = useState([])
     const url = `http://localhost:5000/bookings?email=${user?.email}`
     useEffect(() => {
-        fetch(url)
+        fetch(url,{
+            method: "GET",
+            headers:{
+                authoriztion : `Bearer ${localStorage.getItem('Auth-Token')}`
+            }
+        })
             .then(res => res.json())
-            .then(data => setBookings(data))
+            .then(data => {setBookings(data)
+             console.log(data)
+            })
     }, [])
 
 
@@ -98,7 +105,7 @@ const Bookings = () => {
                                 </td>
                                 <td>{bookItem.date}</td>
                                 <th>
-                                    <button onClick={()=>handleUpdatebyPatch(bookItem._id)} className="btn btn-error btn-xs text-white">Pending</button>
+                                    <button onClick={()=>handleUpdatebyPatch(bookItem._id)}>{bookItem.status=== "confirm"? <span className='btn btn-success btn-xs text-white' >approve</span> :  <span className='btn btn-error btn-xs text-white'> pending</span> }</button>
                                 </th>
                             </tr>)
                         }
